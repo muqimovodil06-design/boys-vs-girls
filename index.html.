@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boys vs Girls — ODIL ADMIN</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;padding:20px;
+ background:#101323;color:white;
+ font-family:Arial,sans-serif;text-align:center
+}
+h1{font-size:30px;color:#ffd34e}
+.subtitle{color:#b8bfd5}
+.card{
+ background:#202943;border-radius:20px;
+ padding:22px;margin:20px auto;max-width:430px
+}
+button{
+ width:100%;padding:18px;margin:10px 0;
+ border:0;border-radius:14px;
+ font-size:19px;font-weight:bold;color:white;
+ cursor:pointer
+}
+.boys{background:#247cff}
+.girls{background:#ec438b}
+.admin{background:#535c75}
+.result{font-size:25px;margin:15px}
+.small{font-size:13px;color:#aeb8d0}
+</style>
+</head>
+<body>
+<h1>⚔️ BOYS VS GIRLS ⚔️</h1>
+<p class="subtitle">ONLINE VOTING GAME</p>
+<div class="card">
+ <h2>КТО ПОБЕДИТ? 🏆</h2>
+ <button class="boys" onclick="vote('boys')">
+ 🔵 ГОЛОС ЗА ПАРНЕЙ
+ </button>
+ <button class="girls" onclick="vote('girls')">
+ ❤️ ГОЛОС ЗА ДЕВУШЕК
+ </button>
+ <p id="message">Выбери свою команду!</p>
+</div>
+<div class="card">
+ <h2>📊 РЕЗУЛЬТАТЫ</h2>
+ <div class="result">🔵 Парни: <span id="b">0</span></div>
+ <div class="result">❤️ Девушки: <span id="g">0</span></div>
+ <h2 id="winner">🏆 Начинаем!</h2>
+</div>
+<div class="card">
+ <h2>👑 ODIL ADMIN</h2>
+ <p class="small">Панель администратора будет подключена отдельно.</p>
+</div>
+<p class="small">© ODIL ADMIN 2026</p>
+<script>
+let boys=0,girls=0;
+function vote(team){
+ if(localStorage.getItem('voted')){
+  document.getElementById('message').textContent=
+  'Ты уже голосовал на этом устройстве!';
+  return;
+ }
+ if(team==='boys')boys++;
+ else girls++;
+ localStorage.setItem('voted','yes');
+ document.getElementById('message').textContent='Спасибо за голос!';
+ update();
+}
+function update(){
+ document.getElementById('b').textContent=boys;
+ document.getElementById('g').textContent=girls;
+ document.getElementById('winner').textContent=
+ boys===girls?'🤝 Ничья!':
+ boys>girls?'🏆 Впереди парни!':'🏆 Впереди девушки!';
+}
+</script>
+</body>
+</html>
