@@ -1,80 +1,163 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Boys vs Girls — ODIL ADMIN</title>
+<meta name="theme-color" content="#101323">
+<title>Парни vs Девушки — ODIL ADMIN</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;padding:20px;
- background:#101323;color:white;
- font-family:Arial,sans-serif;text-align:center
-}
+body{margin:0;padding:20px;background:#101323;color:white;font-family:Arial,sans-serif;text-align:center}
 h1{font-size:30px;color:#ffd34e}
 .subtitle{color:#b8bfd5}
-.card{
- background:#202943;border-radius:20px;
- padding:22px;margin:20px auto;max-width:430px
-}
-button{
- width:100%;padding:18px;margin:10px 0;
- border:0;border-radius:14px;
- font-size:19px;font-weight:bold;color:white;
- cursor:pointer
-}
+.card{background:#202943;border-radius:20px;padding:22px;margin:20px auto;max-width:430px}
+button{width:100%;padding:18px;margin:10px 0;border:0;border-radius:14px;font-size:19px;font-weight:bold;color:white;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
 .boys{background:#247cff}
 .girls{background:#ec438b}
-.admin{background:#535c75}
 .result{font-size:25px;margin:15px}
 .small{font-size:13px;color:#aeb8d0}
+#message{min-height:24px;color:#ffe28a}
 </style>
 </head>
 <body>
-<h1>⚔️ BOYS VS GIRLS ⚔️</h1>
-<p class="subtitle">ONLINE VOTING GAME</p>
+<h1>⚔️ ПАРНИ VS ДЕВУШКИ ⚔️</h1>
+<p class="subtitle">ОНЛАЙН-ГОЛОСОВАНИЕ</p>
+
 <div class="card">
- <h2>КТО ПОБЕДИТ? 🏆</h2>
- <button class="boys" onclick="vote('boys')">
- 🔵 ГОЛОС ЗА ПАРНЕЙ
- </button>
- <button class="girls" onclick="vote('girls')">
- ❤️ ГОЛОС ЗА ДЕВУШЕК
- </button>
- <p id="message">Выбери свою команду!</p>
+<h2>КТО ПОБЕДИТ? 🏆</h2>
+<button id="boysBtn" class="boys" onclick="vote('boys')">🔵 ГОЛОС ЗА ПАРНЕЙ</button>
+<button id="girlsBtn" class="girls" onclick="vote('girls')">❤️ ГОЛОС ЗА ДЕВУШЕК</button>
+<p id="message">Загружаем голосование...</p>
 </div>
+
 <div class="card">
- <h2>📊 РЕЗУЛЬТАТЫ</h2>
- <div class="result">🔵 Парни: <span id="b">0</span></div>
- <div class="result">❤️ Девушки: <span id="g">0</span></div>
- <h2 id="winner">🏆 Начинаем!</h2>
+<h2>📊 ОБЩИЕ РЕЗУЛЬТАТЫ</h2>
+<div class="result">🔵 Парни: <span id="b">0</span></div>
+<div class="result">❤️ Девушки: <span id="g">0</span></div>
+<h2 id="winner">🏆 Загружаем...</h2>
+<p class="small">Результаты обновляются автоматически</p>
 </div>
-<div class="card">
- <h2>👑 ODIL ADMIN</h2>
- <p class="small">Панель администратора будет подключена отдельно.</p>
-</div>
+
 <p class="small">© ODIL ADMIN 2026</p>
+
 <script>
-let boys=0,girls=0;
-function vote(team){
- if(localStorage.getItem('voted')){
-  document.getElementById('message').textContent=
-  'Ты уже голосовал на этом устройстве!';
-  return;
- }
- if(team==='boys')boys++;
- else girls++;
- localStorage.setItem('voted','yes');
- document.getElementById('message').textContent='Спасибо за голос!';
- update();
+const SUPABASE_URL = 'https://civihiqlrltacmzbutwv.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_q1MG16YPOxWmf0_jCGn55w_JMECsTHD';
+
+const headers = {
+  apikey: SUPABASE_KEY,
+  Authorization: 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json'
+};
+
+function getDeviceId(){
+  let id = localStorage.getItem('odil_vote_device');
+  if(!id){
+    id = crypto.randomUUID();
+    localStorage.setItem('odil_vote_device', id);
+  }
+  return id;
 }
-function update(){
- document.getElementById('b').textContent=boys;
- document.getElementById('g').textContent=girls;
- document.getElementById('winner').textContent=
- boys===girls?'🤝 Ничья!':
- boys>girls?'🏆 Впереди парни!':'🏆 Впереди девушки!';
+
+function setVoted(){
+  document.getElementById('boysBtn').disabled = true;
+  document.getElementById('girlsBtn').disabled = true;
 }
+
+async function loadCounts(){
+  try{
+    const response = await fetch(
+      SUPABASE_URL + '/rest/v1/rpc/get_vote_counts',
+      {method:'POST',headers,body:'{}',cache:'no-store'}
+    );
+
+    if(!response.ok) throw new Error('Ошибка загрузки');
+
+    const rows = await response.json();
+    let boys = 0;
+    let girls = 0;
+
+    rows.forEach(row => {
+      if(row.choice === 'boys') boys = Number(row.count);
+      if(row.choice === 'girls') girls = Number(row.count);
+    });
+
+    document.getElementById('b').textContent = boys;
+    document.getElementById('g').textContent = girls;
+
+    document.getElementById('winner').textContent =
+      boys === girls ? '🤝 Пока ничья!' :
+      boys > girls ? '🏆 Впереди парни!' :
+      '🏆 Впереди девушки!';
+
+  }catch(error){
+    document.getElementById('message').textContent =
+      'Не удалось загрузить результаты. Проверь интернет.';
+  }
+}
+
+async function vote(team){
+  if(localStorage.getItem('odil_voted') === 'yes'){
+    document.getElementById('message').textContent =
+      'Ты уже голосовал на этом устройстве!';
+    setVoted();
+    return;
+  }
+
+  setVoted();
+  document.getElementById('message').textContent =
+    'Отправляем твой голос...';
+
+  try{
+    const response = await fetch(
+      SUPABASE_URL + '/rest/v1/votes',
+      {
+        method:'POST',
+        headers:{...headers,Prefer:'return=minimal'},
+        body:JSON.stringify({
+          choice:team,
+          device_id:getDeviceId()
+        })
+      }
+    );
+
+    if(!response.ok){
+      if(response.status === 409){
+        localStorage.setItem('odil_voted','yes');
+        document.getElementById('message').textContent =
+          'Этот браузер уже использовал свой голос!';
+      }else{
+        throw new Error('Ошибка отправки');
+      }
+    }else{
+      localStorage.setItem('odil_voted','yes');
+      document.getElementById('message').textContent =
+        'Спасибо! Твой голос учтён! ✅';
+    }
+
+    await loadCounts();
+
+  }catch(error){
+    document.getElementById('message').textContent =
+      'Не удалось отправить голос. Проверь интернет.';
+    document.getElementById('boysBtn').disabled = false;
+    document.getElementById('girlsBtn').disabled = false;
+  }
+}
+
+if(localStorage.getItem('odil_voted') === 'yes'){
+  setVoted();
+  document.getElementById('message').textContent =
+    'Ты уже голосовал на этом устройстве!';
+}else{
+  document.getElementById('message').textContent =
+    'Выбери свою команду!';
+}
+
+loadCounts();
+setInterval(loadCounts,10000);
 </script>
 </body>
 </html>
