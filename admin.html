@@ -3,83 +3,138 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ODIL ADMIN — Вход</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ODIL ADMIN</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;background:#101323;color:white;
- font-family:Arial;text-align:center;padding:25px
-}
-.card{
- max-width:400px;margin:70px auto;
- background:#202943;padding:25px;border-radius:20px
-}
+body{margin:0;padding:20px;background:#101323;color:white;font-family:Arial;text-align:center}
+.card{max-width:430px;margin:35px auto;background:#202943;padding:24px;border-radius:20px}
 h1{color:#ffd34e}
-input,button{
- width:100%;padding:15px;margin:10px 0;
- border:0;border-radius:10px;font-size:16px
-}
-button{background:#247cff;color:white;font-weight:bold}
-#message{color:#ffd34e}
+input,button{width:100%;padding:15px;margin:9px 0;border:0;border-radius:11px;font-size:16px}
+button{color:white;font-weight:bold;cursor:pointer}
+input{background:white}
+.login{background:#247cff}
+.open{background:#159b62}
+.close{background:#d94354}
+.logout{background:#535c75}
+#message{color:#ffd34e;overflow-wrap:anywhere}
+#panel{display:none}
+.status{font-size:21px;font-weight:bold}
 </style>
 </head>
 <body>
 <div class="card">
 <h1>👑 ODIL ADMIN</h1>
+
+<div id="loginBox">
 <h3>Вход администратора</h3>
-
-<input id="email" type="email" placeholder="Твой Email">
+<input id="email" type="email" placeholder="Email">
 <input id="password" type="password" placeholder="Пароль">
+<button class="login" onclick="login()">ВОЙТИ</button>
+</div>
 
-<button onclick="login()">ВОЙТИ</button>
-<p id="message">Защищённый вход</p>
+<div id="panel">
+<h2>Панель управления</h2>
+<p id="status" class="status">Проверяем статус...</p>
+<button class="open" onclick="setVoting(true)">🟢 ОТКРЫТЬ ГОЛОСОВАНИЕ</button>
+<button class="close" onclick="setVoting(false)">🔴 ЗАКРЫТЬ ГОЛОСОВАНИЕ</button>
+<button class="logout" onclick="logout()">ВЫЙТИ</button>
+</div>
+
+<p id="message">Защищённая панель</p>
 </div>
 
 <script>
-const SUPABASE_URL =
-'https://civihiqlrltacmzbutwv.supabase.co';
+const URL='https://civihiqlrltacmzbutwv.supabase.co';
+const KEY='sb_publishable_q1MG16YPOxWmf0_jCGn55w_JMECsTHD';
 
-const SUPABASE_KEY =
-'sb_publishable_q1MG16YPOxWmf0_jCGn55w_JMECsTHD';
+const db=window.supabase.createClient(URL,KEY);
+const msg=document.getElementById('message');
 
-const db = window.supabase.createClient(
- SUPABASE_URL,
- SUPABASE_KEY
-);
+async function checkAdmin(){
+ const {data:{user}}=await db.auth.getUser();
+
+ if(!user){
+  document.getElementById('loginBox').style.display='block';
+  document.getElementById('panel').style.display='none';
+  return;
+ }
+
+ const {data:admin,error}=await db
+  .from('admin_users')
+  .select('user_id')
+  .eq('user_id',user.id)
+  .maybeSingle();
+
+ if(error || !admin){
+  await db.auth.signOut();
+  msg.textContent='Нет прав администратора!';
+  return;
+ }
+
+ document.getElementById('loginBox').style.display='none';
+ document.getElementById('panel').style.display='block';
+ await refreshStatus();
+}
 
 async function login(){
- const message = document.getElementById('message');
- const email = document.getElementById('email').value.trim();
- const password = document.getElementById('password').value;
+ msg.textContent='Проверяем вход...';
 
- message.textContent = 'Проверяем вход...';
-
- const {data,error} = await db.auth.signInWithPassword({
-  email:email,
-  password:password
+ const {error}=await db.auth.signInWithPassword({
+  email:document.getElementById('email').value.trim(),
+  password:document.getElementById('password').value
  });
 
  if(error){
-  message.textContent = 'Ошибка входа. Проверь Email и пароль.';
+  msg.textContent='Ошибка входа. Проверь Email и пароль.';
   return;
  }
 
- const {data:admin,error:adminError} = await db
-  .from('admin_users')
-  .select('user_id')
-  .eq('user_id',data.user.id)
-  .maybeSingle();
-
- if(adminError || !admin){
-  await db.auth.signOut();
-  message.textContent = 'У тебя нет прав администратора!';
-  return;
- }
-
- message.textContent = 'Добро пожаловать, ODIL ADMIN! 👑';
+ await checkAdmin();
 }
+
+async function refreshStatus(){
+ msg.textContent='Получаем статус...';
+
+ const {data,error}=await db.rpc('is_voting_open');
+
+ if(error){
+  msg.textContent='Ошибка: '+error.message;
+  return;
+ }
+
+ document.getElementById('status').textContent=
+  data===true?'🟢 ГОЛОСОВАНИЕ ОТКРЫТО':
+  '🔴 ГОЛОСОВАНИЕ ЗАКРЫТО';
+
+ msg.textContent='Статус обновлён.';
+}
+
+async function setVoting(value){
+ msg.textContent='Сохраняем настройки...';
+
+ const {error}=await db.rpc('set_voting_open',{
+  p_open:value
+ });
+
+ if(error){
+  msg.textContent='Ошибка: '+error.message;
+  return;
+ }
+
+ await refreshStatus();
+ msg.textContent='Настройки сохранены! ✅';
+}
+
+async function logout(){
+ await db.auth.signOut();
+ document.getElementById('panel').style.display='none';
+ document.getElementById('loginBox').style.display='block';
+ msg.textContent='Ты вышел из аккаунта.';
+}
+
+checkAdmin();
 </script>
 </body>
 </html>
