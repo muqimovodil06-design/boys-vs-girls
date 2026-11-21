@@ -80,8 +80,8 @@ async function loadCounts(){
     let girls = 0;
 
     rows.forEach(row => {
-      if(row.choice === 'boys') boys = Number(row.count);
-      if(row.choice === 'girls') girls = Number(row.count);
+      if(row.choice === 'boys') boys = Number(row.count ?? row.vote_count ?? 0);
+if(row.choice === 'girls') girls = Number(row.count ?? row.vote_count ?? 0);
     });
 
     document.getElementById('b').textContent = boys;
