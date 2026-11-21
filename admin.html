@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ODIL ADMIN — Вход</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#101323;color:white;
+ font-family:Arial;text-align:center;padding:25px
+}
+.card{
+ max-width:400px;margin:70px auto;
+ background:#202943;padding:25px;border-radius:20px
+}
+h1{color:#ffd34e}
+input,button{
+ width:100%;padding:15px;margin:10px 0;
+ border:0;border-radius:10px;font-size:16px
+}
+button{background:#247cff;color:white;font-weight:bold}
+#message{color:#ffd34e}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>👑 ODIL ADMIN</h1>
+<h3>Вход администратора</h3>
+
+<input id="email" type="email" placeholder="Твой Email">
+<input id="password" type="password" placeholder="Пароль">
+
+<button onclick="login()">ВОЙТИ</button>
+<p id="message">Защищённый вход</p>
+</div>
+
+<script>
+const SUPABASE_URL =
+'https://civihiqlrltacmzbutwv.supabase.co';
+
+const SUPABASE_KEY =
+'sb_publishable_q1MG16YPOxWmf0_jCGn55w_JMECsTHD';
+
+const db = window.supabase.createClient(
+ SUPABASE_URL,
+ SUPABASE_KEY
+);
+
+async function login(){
+ const message = document.getElementById('message');
+ const email = document.getElementById('email').value.trim();
+ const password = document.getElementById('password').value;
+
+ message.textContent = 'Проверяем вход...';
+
+ const {data,error} = await db.auth.signInWithPassword({
+  email:email,
+  password:password
+ });
+
+ if(error){
+  message.textContent = 'Ошибка входа. Проверь Email и пароль.';
+  return;
+ }
+
+ const {data:admin,error:adminError} = await db
+  .from('admin_users')
+  .select('user_id')
+  .eq('user_id',data.user.id)
+  .maybeSingle();
+
+ if(adminError || !admin){
+  await db.auth.signOut();
+  message.textContent = 'У тебя нет прав администратора!';
+  return;
+ }
+
+ message.textContent = 'Добро пожаловать, ODIL ADMIN! 👑';
+}
+</script>
+</body>
+</html>
