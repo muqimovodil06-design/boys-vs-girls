@@ -3,48 +3,90 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101323">
-<title>Парни vs Девушки — ODIL ADMIN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Парни vs Девушки</title>
 <style>
-*{box-sizing:border-box}
-body{margin:0;padding:20px;background:#101323;color:white;font-family:Arial,sans-serif;text-align:center}
-h1{font-size:30px;color:#ffd34e}
-.subtitle{color:#b8bfd5}
-.card{background:#202943;border-radius:20px;padding:22px;margin:20px auto;max-width:430px}
-button{width:100%;padding:18px;margin:10px 0;border:0;border-radius:14px;font-size:19px;font-weight:bold;color:white;cursor:pointer}
-button:disabled{opacity:.55;cursor:not-allowed}
-.boys{background:#247cff}
-.girls{background:#ec438b}
-.result{font-size:25px;margin:15px}
-.small{font-size:13px;color:#aeb8d0}
-#message{min-height:24px;color:#ffe28a}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg,#101027,#292957);
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+.card {
+  max-width: 440px;
+  margin: 35px auto;
+  padding: 25px;
+  background: #202044;
+  border-radius: 22px;
+  box-shadow: 0 10px 35px #0006;
+}
+h1 { font-size: 30px; }
+h2 { margin-top: 25px; }
+button {
+  width: 100%;
+  padding: 17px;
+  margin: 9px 0;
+  border: 0;
+  border-radius: 13px;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:disabled { opacity: .5; }
+.boys { background: #1677ff; }
+.girls { background: #ed3995; }
+.result {
+  margin: 15px 0;
+  padding: 15px;
+  background: #30305c;
+  border-radius: 12px;
+  font-size: 21px;
+}
+.number { font-size: 30px; font-weight: bold; }
+#winner { color: #ffd84d; }
+.small { color: #aaa; font-size: 13px; }
 </style>
 </head>
 <body>
-<h1>⚔️ ПАРНИ VS ДЕВУШКИ ⚔️</h1>
-<p class="subtitle">ОНЛАЙН-ГОЛОСОВАНИЕ</p>
 
 <div class="card">
-<h2>КТО ПОБЕДИТ? 🏆</h2>
-<button id="boysBtn" class="boys" onclick="vote('boys')">🔵 ГОЛОС ЗА ПАРНЕЙ</button>
-<button id="girlsBtn" class="girls" onclick="vote('girls')">❤️ ГОЛОС ЗА ДЕВУШЕК</button>
-<p id="message">Загружаем голосование...</p>
+<h1>⚡ ПАРНИ 🆚 ДЕВУШКИ ⚡</h1>
+<h2>КТО ПОБЕДИТ?</h2>
+
+<button id="boysBtn" class="boys">🔵 ГОЛОС ЗА ПАРНЕЙ</button>
+<button id="girlsBtn" class="girls">💗 ГОЛОС ЗА ДЕВУШЕК</button>
+
+<p id="message">Загрузка голосования...</p>
 </div>
 
 <div class="card">
-<h2>📊 ОБЩИЕ РЕЗУЛЬТАТЫ</h2>
-<div class="result">🔵 Парни: <span id="b">0</span></div>
-<div class="result">❤️ Девушки: <span id="g">0</span></div>
-<h2 id="winner">🏆 Загружаем...</h2>
+<h2>🏆 ОБЩИЕ РЕЗУЛЬТАТЫ</h2>
+
+<div class="result">
+Парни: <span class="number" id="b">0</span>
+</div>
+
+<div class="result">
+Девушки: <span class="number" id="g">0</span>
+</div>
+
+<h2 id="winner">Загружаем результаты...</h2>
 <p class="small">Результаты обновляются автоматически</p>
 </div>
 
-<p class="small">© ODIL ADMIN 2026</p>
+<p class="small">ODIL ADMIN © 2026</p>
 
 <script>
-const SUPABASE_URL = 'https://civihiqlrltacmzbutwv.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_q1MG16YPOxWmf0_jCGn55w_JMECsTHD';
+const SUPABASE_URL =
+'https://civihiqlrltacmzbutwv.supabase.co';
+
+const SUPABASE_KEY =
+'sb_publishable_q1MG16YPOxWmf0_jCGn55w_JMECsTHD';
 
 const headers = {
   apikey: SUPABASE_KEY,
@@ -52,112 +94,137 @@ const headers = {
   'Content-Type': 'application/json'
 };
 
-function getDeviceId(){
+function getDeviceId() {
   let id = localStorage.getItem('odil_vote_device');
-  if(!id){
+  if (!id) {
     id = crypto.randomUUID();
     localStorage.setItem('odil_vote_device', id);
   }
   return id;
 }
 
-function setVoted(){
+function setVoted() {
   document.getElementById('boysBtn').disabled = true;
   document.getElementById('girlsBtn').disabled = true;
 }
 
-async function loadCounts(){
-  try{
+async function loadCounts() {
+  try {
     const response = await fetch(
       SUPABASE_URL + '/rest/v1/rpc/get_vote_counts',
-      {method:'POST',headers,body:'{}',cache:'no-store'}
+      {
+        method: 'POST',
+        headers,
+        body: '{}',
+        cache: 'no-store'
+      }
     );
 
-    if(!response.ok) throw new Error('Ошибка загрузки');
+    if (!response.ok) {
+      throw new Error('Ошибка загрузки результатов');
+    }
 
     const rows = await response.json();
     let boys = 0;
     let girls = 0;
 
     rows.forEach(row => {
-      if(row.choice === 'boys') boys = Number(row.count ?? row.vote_count ?? 0);
-if(row.choice === 'girls') girls = Number(row.count ?? row.vote_count ?? 0);
+      const choice = String(row.choice).toLowerCase();
+      const count = Number(
+        row.count ?? row.total ?? row.vote_count ?? 0
+      );
+
+      if (['boys', 'boy', 'парни', 'мальчики'].includes(choice)) {
+        boys = count;
+      }
+
+      if (['girls', 'girl', 'девушки', 'девочки'].includes(choice)) {
+        girls = count;
+      }
     });
 
     document.getElementById('b').textContent = boys;
     document.getElementById('g').textContent = girls;
 
     document.getElementById('winner').textContent =
-      boys === girls ? '🤝 Пока ничья!' :
+      boys === girls ? 'Пока ничья!' :
       boys > girls ? '🏆 Впереди парни!' :
       '🏆 Впереди девушки!';
 
-  }catch(error){
-    document.getElementById('message').textContent =
-      'Не удалось загрузить результаты. Проверь интернет.';
+  } catch (error) {
+    console.error(error);
+    document.getElementById('winner').textContent =
+      'Не удалось загрузить результаты';
   }
 }
 
-async function vote(team){
-  if(localStorage.getItem('odil_voted') === 'yes'){
-    document.getElementById('message').textContent =
-      'Ты уже голосовал на этом устройстве!';
+async function vote(team) {
+  const message = document.getElementById('message');
+
+  if (localStorage.getItem('odil_voted') === 'yes') {
+    message.textContent = 'Ты уже голосовал на этом устройстве!';
     setVoted();
     return;
   }
 
   setVoted();
-  document.getElementById('message').textContent =
-    'Отправляем твой голос...';
+  message.textContent = 'Отправляем твой голос...';
 
-  try{
+  try {
     const response = await fetch(
       SUPABASE_URL + '/rest/v1/votes',
       {
-        method:'POST',
-        headers:{...headers,Prefer:'return=minimal'},
-        body:JSON.stringify({
-          choice:team,
-          device_id:getDeviceId()
+        method: 'POST',
+        headers: {
+          ...headers,
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify({
+          choice: team,
+          device_id: getDeviceId()
         })
       }
     );
 
-    if(!response.ok){
-      if(response.status === 409){
-        localStorage.setItem('odil_voted','yes');
-        document.getElementById('message').textContent =
-          'Этот браузер уже использовал свой голос!';
-      }else{
-        throw new Error('Ошибка отправки');
+    if (!response.ok) {
+      if (response.status === 409) {
+        localStorage.setItem('odil_voted', 'yes');
+        message.textContent = 'Ты уже использовал свой голос!';
+        return;
       }
-    }else{
-      localStorage.setItem('odil_voted','yes');
-      document.getElementById('message').textContent =
-        'Спасибо! Твой голос учтён! ✅';
+      throw new Error('Ошибка отправки голоса');
     }
+
+    localStorage.setItem('odil_voted', 'yes');
+    message.textContent = 'Спасибо! Твой голос учтён!';
 
     await loadCounts();
 
-  }catch(error){
-    document.getElementById('message').textContent =
-      'Не удалось отправить голос. Проверь интернет.';
+  } catch (error) {
+    console.error(error);
+    message.textContent = 'Ошибка отправки. Попробуй позже.';
     document.getElementById('boysBtn').disabled = false;
     document.getElementById('girlsBtn').disabled = false;
   }
 }
 
-if(localStorage.getItem('odil_voted') === 'yes'){
+document.getElementById('boysBtn').addEventListener(
+  'click', () => vote('boys')
+);
+
+document.getElementById('girlsBtn').addEventListener(
+  'click', () => vote('girls')
+);
+
+if (localStorage.getItem('odil_voted') === 'yes') {
   setVoted();
   document.getElementById('message').textContent =
     'Ты уже голосовал на этом устройстве!';
-}else{
-  document.getElementById('message').textContent =
-    'Выбери свою команду!';
 }
 
 loadCounts();
-setInterval(loadCounts,10000);
+setInterval(loadCounts, 5000);
 </script>
+
 </body>
 </html>
