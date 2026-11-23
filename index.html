@@ -4,180 +4,349 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Кто лучший? Парни VS Девушки</title>
+<meta name="theme-color" content="#080817">
+<title>Парни vs Девушки — Голосование</title>
 
 <style>
+:root{
+ --blue:#078bff;
+ --pink:#f0189b;
+ --gold:#ffd64a;
+ --bg:#080817;
+}
 *{box-sizing:border-box}
+html{scroll-behavior:smooth}
 body{
- margin:0;min-height:100vh;padding:18px 12px;
+ margin:0;
+ min-height:100vh;
  background:
- radial-gradient(ellipse at 5% 35%,#004cff66,transparent 45%),
- radial-gradient(ellipse at 95% 35%,#ff008866,transparent 45%),
- #070916;
- color:white;font-family:Arial,sans-serif;text-align:center;
+ radial-gradient(ellipse at 5% 35%,#005dff55,transparent 42%),
+ radial-gradient(ellipse at 95% 35%,#ff008855,transparent 42%),
+ var(--bg);
+ color:white;
+ font-family:Arial,sans-serif;
+ text-align:center;
+ overflow-x:hidden;
 }
-header{max-width:1000px;margin:15px auto 28px}
-.crown{font-size:48px;filter:drop-shadow(0 0 15px gold)}
+.topbar{
+ position:sticky;
+ top:0;
+ z-index:10;
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ padding:14px 4%;
+ background:#080817ef;
+ border-bottom:1px solid #34345b;
+}
+.brand{font-weight:900;font-size:22px}
+.brand .b{color:#29a8ff}
+.brand .g{color:#ff45b8}
+nav{display:flex;gap:18px;flex-wrap:wrap}
+nav a{
+ color:#eee;
+ text-decoration:none;
+ font-weight:bold;
+ font-size:14px;
+}
+nav a:hover{color:var(--gold)}
+main{
+ max-width:1180px;
+ margin:auto;
+ padding:24px 16px 40px;
+}
+.hero{padding:22px 0 14px}
+.crown{
+ font-size:54px;
+ filter:drop-shadow(0 0 16px #ffd64a);
+}
 h1{
- font-size:clamp(32px,7vw,65px);margin:5px 0;
- background:linear-gradient(90deg,#32aaff,#fff,#ff42ba);
- -webkit-background-clip:text;color:transparent;
+ font-size:clamp(42px,9vw,90px);
+ line-height:.95;
+ margin:0 auto 12px;
+ font-weight:1000;
 }
-.subtitle{font-size:clamp(20px,4vw,30px);font-weight:bold}
-.question{color:#ffd52b;font-size:clamp(17px,4vw,24px)}
+h1 .boys{
+ color:#16a2ff;
+ text-shadow:0 0 22px #168cff88;
+}
+h1 .girls{
+ color:#ff36ae;
+ text-shadow:0 0 22px #ff36ae88;
+}
+h1 .vs{color:white}
+.lead{
+ font-size:clamp(16px,3vw,22px);
+ color:#e4e4f3;
+ margin:14px 0 25px;
+}
 .arena{
- max-width:1000px;margin:auto;
- display:grid;grid-template-columns:1fr 1fr;gap:18px;
+ display:grid;
+ grid-template-columns:1fr auto 1fr;
+ align-items:center;
+ gap:18px;
 }
-.card{
- padding:24px 14px;border:2px solid;border-radius:22px;
- background:#101426eF;
+.team{
+ min-width:0;
+ padding:25px 14px;
+ border:2px solid;
+ border-radius:26px;
+ background:linear-gradient(145deg,#101a35ed,#111020f2);
 }
-.boy{
+.team.boy{
  border-color:#078bff;
- box-shadow:0 0 25px #078bff77,inset 0 0 25px #078bff22;
+ box-shadow:0 0 28px #078bff55,inset 0 0 24px #078bff20;
 }
-.girl{
- border-color:#ff159d;
- box-shadow:0 0 25px #ff159d77,inset 0 0 25px #ff159d22;
+.team.girl{
+ border-color:#f0189b;
+ box-shadow:0 0 28px #f0189b55,inset 0 0 24px #f0189b20;
 }
-.symbol{font-size:65px}
-.card h2{font-size:clamp(22px,5vw,34px);margin:8px}
-.vs{font-size:35px;color:#ffe044;font-weight:900;margin:8px}
-button{
- width:100%;padding:17px 8px;border:0;border-radius:15px;
- color:white;font-size:19px;font-weight:bold;cursor:pointer;
- transition:.2s;
+.avatar{
+ font-size:clamp(72px,12vw,130px);
+ line-height:1.2;
 }
-button:active{transform:scale(.96)}
-.boy button{
- background:linear-gradient(90deg,#006aff,#00baff);
- box-shadow:0 0 18px #008cff88;
+.team h2{
+ font-size:clamp(24px,4vw,36px);
+ margin:8px 0 18px;
 }
-.girl button{
- background:linear-gradient(90deg,#e90083,#ff45b2);
- box-shadow:0 0 18px #ff159d88;
+.vote-btn{
+ width:100%;
+ border:0;
+ border-radius:16px;
+ padding:16px 8px;
+ color:white;
+ font-size:clamp(17px,2.7vw,24px);
+ font-weight:900;
+ cursor:pointer;
+ transition:transform .18s;
 }
-button:disabled{opacity:.5;cursor:not-allowed}
-#message{min-height:25px;color:#eee}
+.vote-btn:active{transform:scale(.97)}
+.vote-btn:disabled{
+ opacity:.48;
+ cursor:not-allowed;
+}
+.boy .vote-btn{
+ background:linear-gradient(100deg,#006bff,#00baff);
+ box-shadow:0 0 22px #008cff88;
+}
+.girl .vote-btn{
+ background:linear-gradient(100deg,#e90083,#ff4db4);
+ box-shadow:0 0 22px #ff159d88;
+}
+.versus{
+ font-size:clamp(25px,5vw,46px);
+ font-weight:1000;
+ color:var(--gold);
+ text-shadow:0 0 18px #ffcf35;
+}
+#message{
+ min-height:28px;
+ margin:18px 0 8px;
+ color:white;
+ font-weight:bold;
+}
 .results{
- max-width:1000px;margin:25px auto;padding:22px;
- border:1px solid #7775a5;border-radius:22px;
- background:#101426ee;box-shadow:0 0 25px #0009;
+ margin:24px auto 0;
+ max-width:980px;
+ padding:25px;
+ border:1px solid #68628d;
+ border-radius:24px;
+ background:#111020ed;
+ box-shadow:0 0 35px #0008;
 }
-.results h2{font-size:27px;margin:0 0 22px}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.stat{text-align:left}
-.stat-title{
- display:flex;justify-content:space-between;
- font-size:18px;font-weight:bold;margin-bottom:10px;
+.results h2{
+ font-size:clamp(22px,4vw,32px);
+ margin:0 0 22px;
 }
-.track{height:17px;background:#30344c;border-radius:30px;overflow:hidden}
-.fill{height:100%;width:0%;transition:width .7s;border-radius:30px}
-.blue{background:linear-gradient(90deg,#087bff,#00d5ff)}
-.pink{background:linear-gradient(90deg,#ed008a,#ff59bd)}
-.total{font-size:16px;color:#ddd}
-#winner{color:#ffdc42;font-size:25px;margin:22px 0 5px}
-footer{margin:30px 0 10px;color:#bbb}
-.small{font-size:13px;color:#aaa}
-@media(max-width:520px){
- body{padding:12px 8px}
- .arena{gap:9px}
- .card{padding:17px 8px}
- .symbol{font-size:48px}
- button{font-size:15px;padding:14px 5px}
- .stats{gap:12px}
- .stat-title{font-size:14px}
- .results{padding:15px 10px}
+.result-row{
+ display:grid;
+ grid-template-columns:120px 1fr 76px;
+ align-items:center;
+ gap:14px;
+ margin:18px 0;
+ text-align:left;
 }
- #winner{
-  animation: winnerGlow 1.5s infinite alternate;
+.result-name{
+ font-size:clamp(15px,2.5vw,20px);
+ font-weight:800;
 }
-
-@keyframes winnerGlow{
-  from{
-    text-shadow: 0 0 5px gold;
-    transform: scale(1);
-  }
-  to{
-    text-shadow: 0 0 25px gold;
-    transform: scale(1.05);
-  }
+.track{
+ height:24px;
+ background:#35354b;
+ border-radius:30px;
+ overflow:hidden;
+}
+.fill{
+ height:100%;
+ width:0;
+ border-radius:30px;
+ transition:width .8s ease;
+}
+.fill.blue{
+ background:linear-gradient(90deg,#087bff,#00d5ff);
+ box-shadow:0 0 14px #078bff88;
+}
+.fill.pink{
+ background:linear-gradient(90deg,#ed008a,#ff59bd);
+ box-shadow:0 0 14px #f0189b88;
+}
+.percent{
+ text-align:right;
+ font-size:25px;
+ font-weight:900;
+}
+.total{
+ color:#d9d9ec;
+ font-size:17px;
+ margin:22px 0 10px;
+}
+#winner{
+ color:var(--gold);
+ font-size:clamp(22px,4vw,32px);
+ margin:16px 0 6px;
+ animation:glow 1.5s infinite alternate;
+}
+@keyframes glow{
+ to{
+  text-shadow:0 0 24px #ffd64a;
+  transform:scale(1.025);
+ }
+}
+.note{
+ font-size:13px;
+ color:#aaa;
+ margin-top:14px;
+}
+footer{
+ padding:20px 12px 28px;
+ color:#aaa;
+ font-size:14px;
+}
+@media(max-width:600px){
+ .topbar{align-items:flex-start}
+ nav{gap:8px}
+ nav a{font-size:12px}
+ .arena{
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+ }
+ .versus{
+  grid-column:1/-1;
+  grid-row:1;
+  margin:-4px 0;
+ }
+ .team{padding:18px 9px}
+ .avatar{font-size:66px}
+ .team h2{font-size:21px}
+ .vote-btn{
+  font-size:15px;
+  padding:13px 4px;
+ }
+ .result-row{
+  grid-template-columns:82px 1fr 52px;
+  gap:8px;
+ }
+ .result-name{font-size:13px}
+ .percent{font-size:18px}
+ .results{padding:17px 11px}
 }
 </style>
 </head>
 
 <body>
 
-<header>
- <div class="crown">👑</div>
- <h1>КТО ЛУЧШИЙ?</h1>
- <div class="subtitle">ПАРНИ <span style="color:#ffd52b">VS</span> ДЕВУШКИ</div>
- <p class="question">За кого ты отдаёшь свой лайк?</p>
- <p>🔥 Решать тебе! 🔥</p>
-</header>
+<div class="topbar">
+ <div class="brand">
+  👑 <span class="b">Парни</span> VS
+  <span class="g">Девушки</span>
+ </div>
+ <nav>
+  <a href="#results">▥ Результаты</a>
+  <a href="#vote">❤️ Голосовать</a>
+ </nav>
+</div>
 
 <main>
- <section class="arena">
 
-  <div class="card boy">
-   <div class="symbol">♂️</div>
-   <h2>Парни</h2>
-   <button id="boysBtn">😎 ЛАЙК</button>
+<header class="hero">
+ <div class="crown">👑</div>
+ <h1>
+  <span class="boys">Парни</span>
+  <span class="vs">VS</span><br>
+  <span class="girls">Девушки</span>
+ </h1>
+ <p class="lead">
+  Кто лучше? Решать тебе — отдай свой лайк!
+ </p>
+</header>
+
+<section class="arena" id="vote">
+
+ <div class="team boy">
+  <div class="avatar">😎</div>
+  <h2>Парни</h2>
+  <button class="vote-btn" id="boysBtn">
+   😎 ЛАЙК
+  </button>
+ </div>
+
+ <div class="versus">VS</div>
+
+ <div class="team girl">
+  <div class="avatar">💗</div>
+  <h2>Девушки</h2>
+  <button class="vote-btn" id="girlsBtn">
+   ❤️ ЛАЙК
+  </button>
+ </div>
+
+</section>
+
+<p id="message">Загружаем голосование...</p>
+
+<section class="results" id="results">
+
+ <h2>📊 РЕЗУЛЬТАТЫ ГОЛОСОВАНИЯ</h2>
+
+ <div class="result-row">
+  <div class="result-name">Парни 😎</div>
+  <div class="track">
+   <div class="fill blue" id="bbar"></div>
   </div>
+  <div class="percent" id="bp">0%</div>
+ </div>
 
-  <div class="card girl">
-   <div class="symbol">♀️</div>
-   <h2>Девушки</h2>
-   <button id="girlsBtn">❤️ ЛАЙК</button>
+ <div class="result-row">
+  <div class="result-name">Девушки ❤️</div>
+  <div class="track">
+   <div class="fill pink" id="gbar"></div>
   </div>
-
- </section>
-
- <p id="message">Загружаем голосование...</p>
-
- <section class="results">
-  <h2>📊 РЕЗУЛЬТАТЫ</h2>
-
-  <div class="stats">
-   <div class="stat">
-    <div class="stat-title">
-     <span>Парни ♂️</span>
-     <span id="bp">0%</span>
-    </div>
-    <div class="track">
-     <div class="fill blue" id="bbar"></div>
-    </div>
-    <p class="total"><b id="b">0</b> голосов</p>
-   </div>
-
-   <div class="stat">
-    <div class="stat-title">
-     <span>Девушки ♀️</span>
-     <span id="gp">0%</span>
-    </div>
-    <div class="track">
-     <div class="fill pink" id="gbar"></div>
-    </div>
-    <p class="total"><b id="g">0</b> голосов</p>
-   </div>
-  </div>
+  <div class="percent" id="gp">0%</div>
+ </div>
 
  <p class="total">
-  Всего голосов: <b id="totalVotes">0</b>
-</p>
+  👥 Всего голосов:
+  <b id="totalVotes">0</b>
+ </p>
 
-<h2 id="winner">Загружаем...</h2>
-  <p class="small">Результаты обновляются каждые 5 секунд</p>
- </section>
+ <h2 id="winner">Загружаем...</h2>
+
+ <p class="note">
+  Результаты обновляются автоматически каждые 5 секунд
+ </p>
+
+</section>
 </main>
 
 <footer>
- 👑 <b>ODIL ADMIN</b> | Парни vs Девушки 💙💗
- <p class="small">Один лайк — один голос!</p>
+ 👑 <b>ODIL ADMIN</b> · Парни vs Девушки
+ <br>
+ <span class="note">Один лайк — один голос!</span>
 </footer>
 
 <script>
+
 const SUPABASE_URL =
 'https://civihiqlrltacmzbutwv.supabase.co';
 
@@ -186,95 +355,127 @@ const SUPABASE_KEY =
 
 const headers = {
  apikey: SUPABASE_KEY,
- 
  'Content-Type': 'application/json'
 };
 
 function getDeviceId(){
- let id=localStorage.getItem('odil_vote_device');
+ let id = localStorage.getItem('odil_vote_device');
+
  if(!id){
-  id=crypto.randomUUID();
+  id = crypto.randomUUID();
   localStorage.setItem('odil_vote_device',id);
  }
+
  return id;
 }
 
 function setVoted(){
- document.getElementById('boysBtn').disabled=true;
- document.getElementById('girlsBtn').disabled=true;
+ document.getElementById('boysBtn').disabled = true;
+ document.getElementById('girlsBtn').disabled = true;
 }
 
 async function loadCounts(){
-  try{
-    const response = await fetch(
-      SUPABASE_URL + '/rest/v1/rpc/get_vote_counts',
-      {
-        method: 'POST',
-        headers,
-        body: '{}',
-        cache: 'no-store'
-      }
-    );
 
-    if(!response.ok){
-      throw new Error(await response.text());
-    }
+ try{
 
-    const rows = await response.json();
-    let boys = 0;
-    let girls = 0;
+  const response = await fetch(
+   SUPABASE_URL + '/rest/v1/rpc/get_vote_counts',
+   {
+    method:'POST',
+    headers,
+    body:'{}',
+    cache:'no-store'
+   }
+  );
 
-    rows.forEach(row => {
-      if(row.choice === 'boys') boys = Number(row.total || 0);
-      if(row.choice === 'girls') girls = Number(row.total || 0);
-    });
-
-    const total = boys + girls;
-    const boysPercent = total ? boys / total * 100 : 0;
-    const girlsPercent = total ? girls / total * 100 : 0;
-
-    document.getElementById('b').textContent = boys;
-    document.getElementById('g').textContent = girls;
-
-    document.getElementById('bp').textContent =
-      boysPercent.toFixed(1) + '%';
-
-    document.getElementById('gp').textContent =
-      girlsPercent.toFixed(1) + '%';
-   document.getElementById('bbar').style.width = boysPercent + '%';
-   document.getElementById('gbar').style.width = girlsPercent + '%';
-   
-    document.getElementById('totalVotes').textContent = total;
-
-    document.getElementById('winner').textContent =
-      boys === girls ? '🤝 Ничья!' :
-      boys > girls ? '🏆 Победители: Парни!' :
-      '🏆 Победительницы: Девушки!';
-
-  }catch(error){
-    console.error(error);
-    document.getElementById('winner').textContent =
-      'Ошибка: ' + error.message;
+  if(!response.ok){
+   throw new Error(await response.text());
   }
-}
-async function vote(team){
- const message=document.getElementById('message');
 
- if(localStorage.getItem('odil_voted')==='yes'){
-  message.textContent='Ты уже голосовал на этом устройстве!';
+  const rows = await response.json();
+
+  let boys = 0;
+  let girls = 0;
+
+  rows.forEach(row => {
+   if(row.choice === 'boys'){
+    boys = Number(row.total || 0);
+   }
+
+   if(row.choice === 'girls'){
+    girls = Number(row.total || 0);
+   }
+  });
+
+  const total = boys + girls;
+
+  const boysPercent =
+   total ? boys / total * 100 : 0;
+
+  const girlsPercent =
+   total ? girls / total * 100 : 0;
+
+  document.getElementById('bp').textContent =
+   boysPercent.toFixed(1) + '%';
+
+  document.getElementById('gp').textContent =
+   girlsPercent.toFixed(1) + '%';
+
+  document.getElementById('bbar').style.width =
+   boysPercent + '%';
+
+  document.getElementById('gbar').style.width =
+   girlsPercent + '%';
+
+  document.getElementById('totalVotes').textContent =
+   total;
+
+  document.getElementById('winner').textContent =
+   boys === girls ? '🤝 Ничья!' :
+   boys > girls ? '🏆 Победители: Парни!' :
+   '🏆 Победительницы: Девушки!';
+
+ }catch(error){
+
+  console.error(error);
+
+  document.getElementById('winner').textContent =
+   'Не удалось загрузить результаты';
+
+ }
+}
+
+async function vote(team){
+
+ const message =
+  document.getElementById('message');
+
+ if(localStorage.getItem('odil_voted') === 'yes'){
+
+  message.textContent =
+   'Ты уже голосовал на этом устройстве!';
+
   setVoted();
   return;
  }
 
  setVoted();
- message.textContent='Отправляем твой лайк...';
+
+ message.textContent =
+  'Отправляем твой лайк...';
 
  try{
-  const response=await fetch(
-   SUPABASE_URL+'/rest/v1/votes',
+
+  const response = await fetch(
+   SUPABASE_URL + '/rest/v1/votes',
    {
     method:'POST',
-    headers:{...headers,Prefer:'return=minimal'},
+
+    headers:{
+     ...headers,
+     Prefer:'return=minimal'
+    },
+
     body:JSON.stringify({
      choice:team,
      device_id:getDeviceId()
@@ -283,42 +484,59 @@ async function vote(team){
   );
 
   if(!response.ok){
-   if(response.status===409){
+
+   if(response.status === 409){
+
     localStorage.setItem('odil_voted','yes');
-    message.textContent='Ты уже использовал свой голос!';
+
+    message.textContent =
+     'Ты уже использовал свой голос!';
+
     return;
    }
+
    throw new Error('Ошибка отправки голоса');
   }
 
   localStorage.setItem('odil_voted','yes');
-  message.textContent='Спасибо! Твой лайк учтён! ❤️';
+
+  message.textContent =
+   'Спасибо! Твой лайк учтён! ❤️';
+
   await loadCounts();
 
  }catch(error){
+
   console.error(error);
-  message.textContent='Не удалось отправить голос. Проверь интернет.';
-  document.getElementById('boysBtn').disabled=false;
-  document.getElementById('girlsBtn').disabled=false;
+
+  message.textContent =
+   'Не удалось отправить голос. Проверь интернет.';
+
+  document.getElementById('boysBtn').disabled = false;
+  document.getElementById('girlsBtn').disabled = false;
+
  }
 }
 
-document.getElementById('boysBtn').addEventListener(
- 'click',()=>vote('boys')
-);
+document.getElementById('boysBtn')
+ .addEventListener('click',() => vote('boys'));
 
-document.getElementById('girlsBtn').addEventListener(
- 'click',()=>vote('girls')
-);
+document.getElementById('girlsBtn')
+ .addEventListener('click',() => vote('girls'));
 
-if(localStorage.getItem('odil_voted')==='yes'){
+if(localStorage.getItem('odil_voted') === 'yes'){
+
  setVoted();
- document.getElementById('message').textContent=
+
+ document.getElementById('message').textContent =
   'Ты уже голосовал на этом устройстве!';
+
 }
 
 loadCounts();
+
 setInterval(loadCounts,5000);
+
 </script>
 
 </body>
