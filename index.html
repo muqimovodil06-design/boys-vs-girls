@@ -198,7 +198,10 @@ async function loadCounts(){
    }
   );
 
-  if(!response.ok)throw new Error('Ошибка загрузки');
+  if(!response.ok) {
+  const details = await response.text();
+  throw new Error('HTTP ' + response.status + ': ' + details);
+}
 
   const rows=await response.json();
   let boys=0,girls=0;
@@ -235,11 +238,11 @@ async function loadCounts(){
    boys===girls?'🤝 Пока ничья!':
    boys>girls?'🏆 Впереди парни!':'🏆 Впереди девушки!';
 
- }catch(error){
+}catch(error){
   console.error(error);
-  document.getElementById('winner').textContent=
-   'Ошибка загрузки результатов';
- }
+  document.getElementById('winner').textContent =
+    'Ошибка: ' + error.message;
+}
 }
 
 async function vote(team){
