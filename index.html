@@ -219,13 +219,13 @@ async function loadCounts(){
     const boysPercent = total ? boys / total * 100 : 0;
     const girlsPercent = total ? girls / total * 100 : 0;
 
-    document.getElementById('boysCount').textContent = boys;
-    document.getElementById('girlsCount').textContent = girls;
+    document.getElementById('b').textContent = boys;
+    document.getElementById('g').textContent = girls;
 
-    document.getElementById('boysPercent').textContent =
+    document.getElementById('bp').textContent =
       boysPercent.toFixed(1) + '%';
 
-    document.getElementById('girlsPercent').textContent =
+    document.getElementById('gp').textContent =
       girlsPercent.toFixed(1) + '%';
 
     document.getElementById('totalVotes').textContent = total;
