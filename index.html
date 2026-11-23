@@ -187,64 +187,56 @@ function setVoted(){
 }
 
 async function loadCounts(){
- try{
-  const response=await fetch(
-   SUPABASE_URL+'/rest/v1/rpc/get_vote_counts',
-   {
-    method:'POST',
-    headers,
-    body:'{}',
-    cache:'no-store'
-   }
-  );
+  try{
+    const response = await fetch(
+      SUPABASE_URL + '/rest/v1/rpc/get_vote_counts',
+      {
+        method: 'POST',
+        headers,
+        body: '{}',
+        cache: 'no-store'
+      }
+    );
 
-  if(!response.ok) {
-  const details = await response.text();
-  throw new Error('HTTP ' + response.status + ': ' + details);
+    if(!response.ok){
+      throw new Error(await response.text());
+    }
+
+    const rows = await response.json();
+    let boys = 0;
+    let girls = 0;
+
+    rows.forEach(row => {
+      if(row.choice === 'boys') boys = Number(row.total || 0);
+      if(row.choice === 'girls') girls = Number(row.total || 0);
+    });
+
+    const total = boys + girls;
+    const boysPercent = total ? boys / total * 100 : 0;
+    const girlsPercent = total ? girls / total * 100 : 0;
+
+    document.getElementById('boysCount').textContent = boys;
+    document.getElementById('girlsCount').textContent = girls;
+
+    document.getElementById('boysPercent').textContent =
+      boysPercent.toFixed(1) + '%';
+
+    document.getElementById('girlsPercent').textContent =
+      girlsPercent.toFixed(1) + '%';
+
+    document.getElementById('totalVotes').textContent = total;
+
+    document.getElementById('winner').textContent =
+      boys === girls ? '🤝 Ничья!' :
+      boys > girls ? '🏆 Победители: Парни!' :
+      '🏆 Победительницы: Девушки!';
+
+  }catch(error){
+    console.error(error);
+    document.getElementById('winner').textContent =
+      'Ошибка: ' + error.message;
+  }
 }
-
-  const rows=await response.json();
-  let boys=0,girls=0;
-
-  rows.forEach(row=>{
-   const choice=String(row.choice).toLowerCase();
-   const count=Number(
-    row.count??row.total??row.vote_count??0
-   );
-
-   if(['boys','boy','парни','мальчики'].includes(choice)){
-    boys=count;
-   }
-
-   if(['girls','girl','девушки','девочки'].includes(choice)){
-    girls=count;
-   }
-  });
-
-  document.getElementById('b').textContent=boys;
-  document.getElementById('g').textContent=girls;
-
-  const total=boys+girls;
-  const bp=total?Math.round(boys/total*100):0;
-  const gp=total?100-bp:0;
-
-  document.getElementById('bp').textContent=bp+'%';
-  document.getElementById('gp').textContent=gp+'%';
-
-  document.getElementById('bbar').style.width=bp+'%';
-  document.getElementById('gbar').style.width=gp+'%';
-
-  document.getElementById('winner').textContent=
-   boys===girls?'🤝 Пока ничья!':
-   boys>girls?'🏆 Впереди парни!':'🏆 Впереди девушки!';
-
-}catch(error){
-  console.error(error);
-  document.getElementById('winner').textContent =
-    'Ошибка: ' + error.message;
-}
-}
-
 async function vote(team){
  const message=document.getElementById('message');
 
