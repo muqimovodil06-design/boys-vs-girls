@@ -227,7 +227,9 @@ async function loadCounts(){
 
     document.getElementById('gp').textContent =
       girlsPercent.toFixed(1) + '%';
-
+   document.getElementById('bbar').style.width = boysPercent + '%';
+   document.getElementById('gbar').style.width = girlsPercent + '%';
+   
     document.getElementById('totalVotes').textContent = total;
 
     document.getElementById('winner').textContent =
